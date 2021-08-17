@@ -3,6 +3,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <limits>
 #include <io2d.h>
 #include "route_model.h"
 #include "render.h"
@@ -25,6 +26,43 @@ static std::optional<std::vector<std::byte>> ReadFile(const std::string &path)
     if( contents.empty() )
         return std::nullopt;
     return std::move(contents);
+}
+
+float getCINInput(std::string var_name)
+{
+    float var_val = -1.0f; //initialize it with a invalid value
+    if(var_name == "start_x")
+    {
+        std::cout << "Enter the x coordinate of start point (0~100): ";
+    }
+    else if(var_name == "start_y")
+    {
+        std::cout << "Enter the y coordinate of start point (0~100): ";
+    }
+    else if(var_name == "end_x")
+    {
+        std::cout << "Enter the x coordinate of end point (0~100): ";
+    }
+    else if(var_name == "end_y")
+    {
+        std::cout << "Enter the y coordinate of end point (0~100): ";
+    }
+    
+    std::cin >> var_val;
+    std::cout << "\n";
+
+  	// check if the user input is correct or not
+    // must be numeric (int or float) and within 0 to 100
+    // https://stackoverflow.com/questions/5655142/how-to-check-if-input-is-numeric-in-c
+    while(!(std::cin) || var_val < 0 || var_val > 100)
+    {
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        std::cout << "Please enter a number between 0 and 100: ";
+        std::cin >> var_val;
+    }
+
+    return var_val;
 }
 
 int main(int argc, const char **argv)
@@ -55,12 +93,17 @@ int main(int argc, const char **argv)
     // TODO 1: Declare floats `start_x`, `start_y`, `end_x`, and `end_y` and get
     // user input for these values using std::cin. Pass the user input to the
     // RoutePlanner object below in place of 10, 10, 90, 90.
+    float start_x, start_y, end_x, end_y;
+    start_x = getCINInput("start_x");
+    start_y = getCINInput("start_y");
+    end_x = getCINInput("end_x");
+    end_y = getCINInput("end_y");
 
     // Build Model.
     RouteModel model{osm_data};
 
     // Create RoutePlanner object and perform A* search.
-    RoutePlanner route_planner{model, 10, 10, 90, 90};
+    RoutePlanner route_planner{model, start_x, start_y, end_x, end_y};
     route_planner.AStarSearch();
 
     std::cout << "Distance: " << route_planner.GetDistance() << " meters. \n";
